@@ -103,7 +103,7 @@ def sanity_checks(
     input_data: Any,
     model_args: list[Any] | tuple[Any] | None,
     model_kwargs: dict[str, Any] | None,
-    device: torch.device | str | int | None,
+    device: torch.device | str | int,
     loss: torch.nn.Module | None,
     num_samples: int,
 ) -> None:
@@ -112,7 +112,7 @@ def sanity_checks(
         raise OSError("`benchmark` only works on CUDA.")
 
     # device
-    if device is not None and not isinstance(device, (torch.device, str, int)):
+    if not isinstance(device, (torch.device, str, int)):
         raise TypeError(
             f"Parameter `device` must be of type `torch.device`, "
             f"`str`, or `None`, not {type(device)}"
@@ -158,15 +158,13 @@ def sanity_checks(
 
     # model_type
     try:
-        model = model_type(*model_args, **model_kwargs).to(
-            "cuda" if torch.cuda.is_available() else "cpu"
-        )
+        model = model_type(*model_args, **model_kwargs).to(device)
     except Exception as e:
         raise RuntimeError("Model-construction failed.") from e
 
     # input_data
     try:
-        input_data.to("cuda" if torch.cuda.is_available() else "cpu")
+        input_data.to(device)
         output = model(input_data)
     except Exception as e:
         raise RuntimeError("Model incompatible with input_data.") from e
