@@ -49,8 +49,8 @@ class ModelStatistics:
 
     def __repr__(self) -> str:
         lines = [
-            "Device:",
-            "Memory consumption (no grad, forward only):",
+            "Device: ",
+            "Memory consumption (no grad, forward only): ",
             "Memory consumption (grad, forward & backward): ",
             "Compute time (no grad, forward only): ",
             "Compute time (grad, forward & backward): ",
