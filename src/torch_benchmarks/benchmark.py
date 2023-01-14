@@ -38,6 +38,8 @@ def benchmark(
     :return: ModelStatistics object
                 See torch_benchmarks/model_statistics.py for more information.
     """
+    model_args = model_args if model_args is not None else []
+    model_kwargs = model_kwargs if model_kwargs is not None else {}
 
     if verbose:
         print("\nStarted benchmark.\nPerforming sanity checks...")
@@ -46,9 +48,6 @@ def benchmark(
     )
     if verbose:
         print("Sanity checks passed. \n")
-
-    model_args = model_args if model_args is not None else []
-    model_kwargs = model_kwargs if model_kwargs is not None else {}
 
     memory_usage_forward = 0.0
     memory_usage_forward_backward = 0.0
