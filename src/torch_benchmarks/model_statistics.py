@@ -61,8 +61,8 @@ class ModelStatistics:
         lines[0] += f"{self.device_name} \n"
         lines[1] += f"{self.to_mb(self.memory_usage_forward)} MB \n"
         lines[2] += f"{self.to_mb(self.memory_usage_forward_backward)} MB \n"
-        lines[3] += f"{self.compute_time_forward} sec\n"
-        lines[4] += f"{self.compute_time_forward_backward} sec\n"
+        lines[3] += f"{self.compute_time_forward:.3f} sec\n"
+        lines[4] += f"{self.compute_time_forward_backward:.3f} sec\n"
 
         max_line_len = 0
         for line in lines:
