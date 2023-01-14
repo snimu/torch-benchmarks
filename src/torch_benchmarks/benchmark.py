@@ -49,7 +49,7 @@ def benchmark(
     if verbose:
         print("Sanity checks passed. \n")
 
-    input_data.to(device)
+    input_data = input_data.to(device)
 
     memory_usage_forward = 0.0
     memory_usage_forward_backward = 0.0
@@ -164,7 +164,7 @@ def sanity_checks(
 
     # input_data
     try:
-        input_data.to(device)
+        input_data = input_data.to(device)
         output = model(input_data)
     except Exception as e:
         raise RuntimeError("Model incompatible with input_data.") from e
