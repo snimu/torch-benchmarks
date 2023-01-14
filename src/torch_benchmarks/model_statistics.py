@@ -49,20 +49,20 @@ class ModelStatistics:
 
     def __repr__(self) -> str:
         lines = [
-            device := "Device:",
-            mem_forward := "Memory consumption (no grad, forward only):",
-            mem_full := "Memory consumption (grad, forward & backward): ",
-            compute_forward := "Compute time (no grad, forward only): ",
-            compute_forward_backward := "Compute time (grad, forward & backward): ",
+            "Device:",
+            "Memory consumption (no grad, forward only):",
+            "Memory consumption (grad, forward & backward): ",
+            "Compute time (no grad, forward only): ",
+            "Compute time (grad, forward & backward): ",
         ]
 
         lines = self.fill_lines(lines)
 
-        device += f"{self.device_name} \n"
-        mem_forward += f"{self.to_mb(self.memory_usage_forward)} MB \n"
-        mem_full += f"{self.to_mb(self.memory_usage_forward_backward)} MB \n"
-        compute_forward += f"{self.compute_time_forward} sec\n"
-        compute_forward_backward += f"{self.compute_time_forward_backward} sec\n"
+        lines[0] += f"{self.device_name} \n"
+        lines[1] += f"{self.to_mb(self.memory_usage_forward)} MB \n"
+        lines[2] += f"{self.to_mb(self.memory_usage_forward_backward)} MB \n"
+        lines[3] += f"{self.compute_time_forward} sec\n"
+        lines[4] += f"{self.compute_time_forward_backward} sec\n"
 
         max_line_len = 0
         for line in lines:
@@ -72,7 +72,7 @@ class ModelStatistics:
 
         divider = "=" * max_line_len + "\n"
 
-        return divider + "ModelStatistics" + divider + "".join(lines) + divider
+        return divider + "ModelStatistics \n" + divider + "".join(lines) + divider
 
     @staticmethod
     def to_mb(memory_bytes: float) -> int:
