@@ -49,6 +49,8 @@ def benchmark(
     if verbose:
         print("Sanity checks passed. \n")
 
+    input_data.to(device)
+
     memory_usage_forward = 0.0
     memory_usage_forward_backward = 0.0
     compute_time_forward = 0.0
