@@ -164,6 +164,7 @@ def sanity_checks(
 
     # input_data
     try:
+        input_data.to(device)
         output = model(input_data)
     except Exception as e:
         raise RuntimeError("Model incompatible with input_data.") from e
