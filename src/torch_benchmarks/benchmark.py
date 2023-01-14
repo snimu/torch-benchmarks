@@ -179,19 +179,19 @@ def sanity_checks(
 
         try:
             loss.to(device)
-            output = loss(output, output)
+            loss_ = loss(output, output)
         except Exception as e:
             raise RuntimeError("`loss` incompatible with model-output.") from e
 
         try:
-            model.backward(output)
+            loss_.backward()
         except Exception as e:
             raise RuntimeError(
                 "model cannot update parameters with output of `loss`."
             ) from e
 
     # Cleanup
-    del model, output
+    del model, output, loss_
 
 
 @torch.no_grad()
@@ -233,7 +233,7 @@ def check_forward_backward(
 
     output = model(input_data)
     loss_ = loss(output, output)
-    model.backward(loss_)
+    loss_.backward()
 
     compute_time = perf_counter() - t0
     memory_usage = torch.cuda.max_memory_allocated(device) - memory_usage_before
