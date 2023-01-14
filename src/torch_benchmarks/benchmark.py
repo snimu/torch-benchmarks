@@ -78,7 +78,6 @@ def benchmark(
     compute_time_forward_backward /= num_samples
 
     model_statistics = ModelStatistics(
-        model_name=model_type(*model_args, **model_kwargs).__qualname__,
         device=device,
         memory_usage_forward=memory_usage_forward,
         memory_usage_forward_backward=memory_usage_forward_backward,

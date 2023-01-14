@@ -6,9 +6,6 @@ import torch
 class ModelStatistics:
     """Holds information about a model:
 
-
-    *model_name*: The name of the model
-
     *device*: The device
         (not printed out by either
         `ModelStatistics.__str__` or `ModelStatistics.__repr__`)
@@ -34,14 +31,12 @@ class ModelStatistics:
 
     def __init__(
         self,
-        model_name: str,
         device: torch.device | str | int,
         memory_usage_forward: float,
         memory_usage_forward_backward: float,
         compute_time_forward: float,
         compute_time_forward_backward: float,
     ) -> None:
-        self.model_name = model_name
         self.device = device
         self.device_name = torch.cuda.get_device_name(device)
         self.memory_usage_forward = memory_usage_forward
@@ -54,7 +49,6 @@ class ModelStatistics:
 
     def __repr__(self) -> str:
         lines = [
-            model := "Model:",
             device := "Device:",
             mem_forward := "Memory consumption (no grad, forward only):",
             mem_full := "Memory consumption (grad, forward & backward): ",
@@ -64,7 +58,6 @@ class ModelStatistics:
 
         lines = self.fill_lines(lines)
 
-        model += f"{self.model_name} \n"
         device += f"{self.device_name} \n"
         mem_forward += f"{self.to_mb(self.memory_usage_forward)} MB \n"
         mem_full += f"{self.to_mb(self.memory_usage_forward_backward)} MB \n"
