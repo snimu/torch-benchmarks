@@ -13,11 +13,11 @@ from .model_statistics import ModelStatistics
 def benchmark(
     model_type: Any,
     input_data: Any,
+    loss: torch.nn.Module,
     *,
     model_args: list[Any] | tuple[Any] | None = None,
     model_kwargs: dict[str, Any] | None = None,
     device: torch.device | str | int = "cuda",
-    loss: torch.nn.Module | None = None,
     num_samples: int = 10,
     verbose: bool = False,
 ) -> ModelStatistics:
@@ -44,7 +44,7 @@ def benchmark(
     if verbose:
         print("\nStarted benchmark.\nPerforming sanity checks...")
     sanity_checks(
-        model_type, input_data, model_args, model_kwargs, device, loss, num_samples
+        model_type, input_data, loss, model_args, model_kwargs, device, num_samples
     )
     if verbose:
         print("Sanity checks passed. \n")
@@ -67,7 +67,7 @@ def benchmark(
         compute_time_forward += compute_time
 
         memory_usage, compute_time = check_forward_backward(
-            model_type, input_data, model_args, model_kwargs, device, loss
+            model_type, input_data, loss, model_args, model_kwargs, device
         )
         memory_usage_forward_backward += memory_usage
         compute_time_forward_backward += compute_time
@@ -101,10 +101,10 @@ def benchmark(
 def sanity_checks(
     model_type: Any,
     input_data: Any,
+    loss: torch.nn.Module,
     model_args: list[Any] | tuple[Any] | None,
     model_kwargs: dict[str, Any] | None,
     device: torch.device | str | int,
-    loss: torch.nn.Module | None,
     num_samples: int,
 ) -> None:
     # cuda
@@ -220,10 +220,10 @@ def check_forward(
 def check_forward_backward(
     model_type: Any,
     input_data: Any,
+    loss: torch.nn.Module,
     model_args: list[Any] | tuple[Any],
     model_kwargs: dict[str, Any],
     device: torch.device | str | int,
-    loss: torch.nn.Module | None,
 ) -> tuple[float, float]:
     memory_usage_before = torch.cuda.max_memory_allocated(device)
     model = model_type(*model_args, **model_kwargs).to(device)
@@ -231,13 +231,13 @@ def check_forward_backward(
     t0 = perf_counter()
 
     output = model(input_data)
-    output = output if loss is None else loss(output)
-    model.backward(output)
+    loss_ = loss(output)
+    model.backward(loss_)
 
     compute_time = perf_counter() - t0
     memory_usage = torch.cuda.max_memory_allocated(device) - memory_usage_before
 
-    del model, output
+    del model, output, loss_
     torch.cuda.reset_peak_memory_stats(device)
 
     return memory_usage, compute_time

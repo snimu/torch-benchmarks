@@ -7,4 +7,4 @@ from tests.fixtures.models import SimpleModel
 
 def test_cuda() -> None:
     with pytest.raises(EnvironmentError):
-        _ = tbm.benchmark(SimpleModel, torch.ones(10))
+        _ = tbm.benchmark(SimpleModel, torch.ones(10), loss=torch.nn.BCELoss())
