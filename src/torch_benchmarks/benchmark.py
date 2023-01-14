@@ -203,6 +203,7 @@ def check_forward(
 ) -> tuple[float, float]:
     memory_usage_before = torch.cuda.max_memory_allocated(device)
     model = model_type(*model_args, **model_kwargs).to(device)
+    model.eval()
     t0 = perf_counter()
 
     _ = model(input_data)
@@ -226,6 +227,7 @@ def check_forward_backward(
 ) -> tuple[float, float]:
     memory_usage_before = torch.cuda.max_memory_allocated(device)
     model = model_type(*model_args, **model_kwargs).to(device)
+    model.train()
     t0 = perf_counter()
 
     output = model(input_data)
