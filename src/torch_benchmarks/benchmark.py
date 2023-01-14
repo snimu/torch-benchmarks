@@ -178,7 +178,8 @@ def sanity_checks(
             )
 
         try:
-            output = loss(output)
+            loss.to(device)
+            output = loss(output, output)
         except Exception as e:
             raise RuntimeError("`loss` incompatible with model-output.") from e
 
@@ -231,7 +232,7 @@ def check_forward_backward(
     t0 = perf_counter()
 
     output = model(input_data)
-    loss_ = loss(output)
+    loss_ = loss(output, output)
     model.backward(loss_)
 
     compute_time = perf_counter() - t0
