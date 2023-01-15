@@ -51,8 +51,8 @@ def benchmark(
 
     input_data = input_data.to(device)
 
-    memory_usage_forward = 0.0
-    memory_usage_forward_backward = 0.0
+    memory_bytes_forward = 0.0
+    memory_bytes_forward_backward = 0.0
     compute_time_forward = 0.0
     compute_time_forward_backward = 0.0
 
@@ -60,27 +60,27 @@ def benchmark(
         print("Performing benchmark...")
 
     for _ in tqdm(range(num_samples), disable=not verbose):
-        memory_usage, compute_time = check_forward(
+        memory_bytes, compute_time = check_forward(
             model_type, input_data, model_args, model_kwargs, device
         )
-        memory_usage_forward += memory_usage
+        memory_bytes_forward += memory_bytes
         compute_time_forward += compute_time
 
-        memory_usage, compute_time = check_forward_backward(
+        memory_bytes, compute_time = check_forward_backward(
             model_type, input_data, loss, model_args, model_kwargs, device
         )
-        memory_usage_forward_backward += memory_usage
+        memory_bytes_forward_backward += memory_bytes
         compute_time_forward_backward += compute_time
 
-    memory_usage_forward /= num_samples
-    memory_usage_forward_backward /= num_samples
+    memory_bytes_forward /= num_samples
+    memory_bytes_forward_backward /= num_samples
     compute_time_forward /= num_samples
     compute_time_forward_backward /= num_samples
 
     model_statistics = ModelStatistics(
         device=device,
-        memory_usage_forward=memory_usage_forward,
-        memory_usage_forward_backward=memory_usage_forward_backward,
+        memory_bytes_forward=memory_bytes_forward,
+        memory_bytes_forward_backward=memory_bytes_forward_backward,
         compute_time_forward=compute_time_forward,
         compute_time_forward_backward=compute_time_forward_backward,
     )
@@ -209,12 +209,12 @@ def check_forward(
     _ = model(input_data)
 
     compute_time = perf_counter() - t0
-    memory_usage = torch.cuda.max_memory_allocated(device) - memory_usage_before
+    memory_bytes = torch.cuda.max_memory_allocated(device) - memory_usage_before
 
     del model
     torch.cuda.reset_peak_memory_stats(device)
 
-    return memory_usage, compute_time
+    return memory_bytes, compute_time
 
 
 def check_forward_backward(
@@ -235,9 +235,9 @@ def check_forward_backward(
     loss_.backward()
 
     compute_time = perf_counter() - t0
-    memory_usage = torch.cuda.max_memory_allocated(device) - memory_usage_before
+    memory_bytes = torch.cuda.max_memory_allocated(device) - memory_usage_before
 
     del model, output, loss_
     torch.cuda.reset_peak_memory_stats(device)
 
-    return memory_usage, compute_time
+    return memory_bytes, compute_time

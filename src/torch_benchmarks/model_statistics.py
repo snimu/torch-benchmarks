@@ -12,11 +12,13 @@ class ModelStatistics:
 
     *device_name*: The name of the device
 
-    *memory_usage_forward*:
+    *memory_bytes_forward*:
         Memory usage of model, without gradient, forward-only
+        In bytes, but printed in MB
 
-    *memory_usage_forward_backward*:
+    *memory_bytes_forward_backward*:
         Memory usage of model, with gradient, forward and backward
+        In bytes, but printed in MB
 
     *compute_time_forward*:
         Execution time of gradient-less forward-pass of model on given device
@@ -32,15 +34,15 @@ class ModelStatistics:
     def __init__(
         self,
         device: torch.device | str | int,
-        memory_usage_forward: float,
-        memory_usage_forward_backward: float,
+        memory_bytes_forward: float,
+        memory_bytes_forward_backward: float,
         compute_time_forward: float,
         compute_time_forward_backward: float,
     ) -> None:
         self.device = device
         self.device_name = torch.cuda.get_device_name(device)
-        self.memory_usage_forward = memory_usage_forward
-        self.memory_usage_forward_backward = memory_usage_forward_backward
+        self.memory_bytes_forward = memory_bytes_forward
+        self.memory_bytes_forward_backward = memory_bytes_forward_backward
         self.compute_time_forward = compute_time_forward
         self.compute_time_forward_backward = compute_time_forward_backward
 
@@ -59,8 +61,8 @@ class ModelStatistics:
         lines = self.fill_lines(lines)
 
         lines[0] += f"{self.device_name} \n"
-        lines[1] += f"{self.to_mb(self.memory_usage_forward)} MB \n"
-        lines[2] += f"{self.to_mb(self.memory_usage_forward_backward)} MB \n"
+        lines[1] += f"{self.to_mb(self.memory_bytes_forward)} MB \n"
+        lines[2] += f"{self.to_mb(self.memory_bytes_forward_backward)} MB \n"
         lines[3] += f"{self.compute_time_forward:.3f} sec\n"
         lines[4] += f"{self.compute_time_forward_backward:.3f} sec\n"
 
