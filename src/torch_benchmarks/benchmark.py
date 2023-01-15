@@ -18,6 +18,7 @@ def benchmark(
     model_args: list[Any] | tuple[Any] | None = None,
     model_kwargs: dict[str, Any] | None = None,
     device: torch.device | str | int = "cuda",
+    dtype: torch.dtype = torch.float32,
     num_samples: int = 10,
     verbose: bool = False,
 ) -> ModelStatistics:
@@ -32,6 +33,7 @@ def benchmark(
     :param model_kwargs: The keyword-arguments needed for constructing the model.
                         Example: `weights=torchvision.models.ResNet50_Weights`.
     :param device: The device you want your model to run on. Must be CUDA.
+    :param dtype: The datatype of the inputs. Inputs and models will be cast to it.
     :param loss: The loss-function. Optional.
     :param num_samples: The number of times the model should be measured.
     :param verbose: If `True`, prints progress info and the output of `benchmark`.
@@ -44,7 +46,14 @@ def benchmark(
     if verbose:
         print("\nStarted benchmark.\nPerforming sanity checks...")
     sanity_checks(
-        model_type, input_data, loss, model_args, model_kwargs, device, num_samples
+        model_type,
+        input_data,
+        loss,
+        model_args,
+        model_kwargs,
+        device,
+        dtype,
+        num_samples,
     )
     if verbose:
         print("Sanity checks passed. \n")
@@ -61,13 +70,13 @@ def benchmark(
 
     for _ in tqdm(range(num_samples), disable=not verbose):
         memory_bytes, compute_time = check_forward(
-            model_type, input_data, model_args, model_kwargs, device
+            model_type, input_data, model_args, model_kwargs, device, dtype
         )
         memory_bytes_forward += memory_bytes
         compute_time_forward += compute_time
 
         memory_bytes, compute_time = check_forward_backward(
-            model_type, input_data, loss, model_args, model_kwargs, device
+            model_type, input_data, loss, model_args, model_kwargs, device, dtype
         )
         memory_bytes_forward_backward += memory_bytes
         compute_time_forward_backward += compute_time
@@ -104,6 +113,7 @@ def sanity_checks(
     model_args: list[Any] | tuple[Any] | None,
     model_kwargs: dict[str, Any] | None,
     device: torch.device | str | int,
+    dtype: torch.dtype,
     num_samples: int,
 ) -> None:
     # cuda
@@ -161,6 +171,22 @@ def sanity_checks(
     except Exception as e:
         raise RuntimeError("Model-construction failed.") from e
 
+    # dtype
+    if not isinstance(dtype, torch.dtype):
+        raise TypeError(
+            f"Parameter `dtype` must be of type `torch.dtype`, not {type(dtype)}"
+        )
+
+    try:
+        model.to(dtype)
+    except Exception as e:
+        raise RuntimeError(f"`model.to(dtype={dtype})` failed.") from e
+
+    try:
+        input_data.to(dtype)
+    except Exception as e:
+        raise RuntimeError(f"`input_data.to(dtype={dtype})` failed.") from e
+
     # input_data
     try:
         input_data = input_data.to(device)
@@ -200,9 +226,10 @@ def check_forward(
     model_args: list[Any] | tuple[Any],
     model_kwargs: dict[str, Any],
     device: torch.device | str | int,
+    dtype: torch.dtype,
 ) -> tuple[float, float]:
     memory_usage_before = torch.cuda.max_memory_allocated(device)
-    model = model_type(*model_args, **model_kwargs).to(device)
+    model = model_type(*model_args, **model_kwargs).to(device, dtype=dtype)
     model.eval()
     t0 = perf_counter()
 
@@ -224,9 +251,10 @@ def check_forward_backward(
     model_args: list[Any] | tuple[Any],
     model_kwargs: dict[str, Any],
     device: torch.device | str | int,
+    dtype: torch.dtype,
 ) -> tuple[float, float]:
     memory_usage_before = torch.cuda.max_memory_allocated(device)
-    model = model_type(*model_args, **model_kwargs).to(device)
+    model = model_type(*model_args, **model_kwargs).to(device, dtype=dtype)
     model.train()
     t0 = perf_counter()
 
