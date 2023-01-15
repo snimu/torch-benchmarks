@@ -52,6 +52,7 @@ class ModelStatistics:
     def __repr__(self) -> str:
         lines = [
             "Device: ",
+            "Torch version: ",
             "Memory consumption (no grad, forward only): ",
             "Memory consumption (grad, forward & backward): ",
             "Compute time (no grad, forward only): ",
@@ -61,10 +62,11 @@ class ModelStatistics:
         lines = self.fill_lines(lines)
 
         lines[0] += f"{self.device_name} \n"
-        lines[1] += f"{self.to_mb(self.memory_bytes_forward):.3f} MB \n"
-        lines[2] += f"{self.to_mb(self.memory_bytes_forward_backward):.3f} MB \n"
-        lines[3] += f"{self.compute_time_forward:.3f} sec\n"
-        lines[4] += f"{self.compute_time_forward_backward:.3f} sec\n"
+        lines[1] += f"{torch.__version__} \n"
+        lines[2] += f"{self.to_mb(self.memory_bytes_forward):.3f} MB \n"
+        lines[3] += f"{self.to_mb(self.memory_bytes_forward_backward):.3f} MB \n"
+        lines[4] += f"{self.compute_time_forward:.3f} sec\n"
+        lines[5] += f"{self.compute_time_forward_backward:.3f} sec\n"
 
         max_line_len = 0
         for line in lines:
