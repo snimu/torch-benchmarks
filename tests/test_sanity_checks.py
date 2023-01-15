@@ -101,7 +101,6 @@ class TestSanityChecks:
             )
 
     def test_sanity_check_model_args(self) -> None:
-
         benchmark(
             self.resnet18,
             self.input_data,
