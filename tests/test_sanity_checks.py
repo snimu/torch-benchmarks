@@ -99,3 +99,22 @@ class TestSanityChecks:
                 model_kwargs=self.model_kwargs18,
                 num_samples=-1,
             )
+
+    def test_sanity_check_model_args(self) -> None:
+
+        benchmark(
+            self.resnet18,
+            self.input_data,
+            self.loss,
+            model_args=[],
+            model_kwargs=self.model_kwargs18,
+        )
+
+        with pytest.raises(TypeError):
+            benchmark(
+                self.resnet18,
+                self.input_data,
+                self.loss,
+                model_args={"foo": "bar"},  # type: ignore[arg-type]
+                model_kwargs=self.model_kwargs18,
+            )
