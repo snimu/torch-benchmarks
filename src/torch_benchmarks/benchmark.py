@@ -88,6 +88,7 @@ def benchmark(
 
     model_statistics = ModelStatistics(
         device=device,
+        dtype=dtype,
         memory_bytes_forward=memory_bytes_forward,
         memory_bytes_forward_backward=memory_bytes_forward_backward,
         compute_time_forward=compute_time_forward,

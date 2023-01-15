@@ -7,8 +7,8 @@ class ModelStatistics:
     """Holds information about a model:
 
     *device*: The device
-        (not printed out by either
-        `ModelStatistics.__str__` or `ModelStatistics.__repr__`)
+
+    *dtype*: The torch.dtype of model & input_data
 
     *device_name*: The name of the device
 
@@ -34,12 +34,14 @@ class ModelStatistics:
     def __init__(
         self,
         device: torch.device | str | int,
+        dtype: torch.dtype,
         memory_bytes_forward: float,
         memory_bytes_forward_backward: float,
         compute_time_forward: float,
         compute_time_forward_backward: float,
     ) -> None:
         self.device = device
+        self.dtype = dtype
         self.device_name = torch.cuda.get_device_name(device)
         self.memory_bytes_forward = memory_bytes_forward
         self.memory_bytes_forward_backward = memory_bytes_forward_backward
@@ -52,6 +54,7 @@ class ModelStatistics:
     def __repr__(self) -> str:
         lines = [
             "Device: ",
+            "Dtype: ",
             "Torch version: ",
             "Memory consumption (no grad, forward only): ",
             "Memory consumption (grad, forward & backward): ",
@@ -62,11 +65,12 @@ class ModelStatistics:
         lines = self.fill_lines(lines)
 
         lines[0] += f"{self.device_name} \n"
-        lines[1] += f"{torch.__version__} \n"
-        lines[2] += f"{self.to_mb(self.memory_bytes_forward):.3f} MB \n"
-        lines[3] += f"{self.to_mb(self.memory_bytes_forward_backward):.3f} MB \n"
-        lines[4] += f"{self.compute_time_forward:.3f} sec\n"
-        lines[5] += f"{self.compute_time_forward_backward:.3f} sec\n"
+        lines[1] += f"{self.dtype} \n"
+        lines[2] += f"{torch.__version__} \n"
+        lines[3] += f"{self.to_mb(self.memory_bytes_forward):.3f} MB \n"
+        lines[4] += f"{self.to_mb(self.memory_bytes_forward_backward):.3f} MB \n"
+        lines[5] += f"{self.compute_time_forward:.3f} sec\n"
+        lines[6] += f"{self.compute_time_forward_backward:.3f} sec\n"
 
         max_line_len = 0
         for line in lines:
