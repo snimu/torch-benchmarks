@@ -124,9 +124,9 @@ def sanity_check_device(device: torch.device | str | int) -> None:
             f"`str`, or `None`, not {type(device)}"
         )
 
-    if (isinstance(device, torch.device) and device != torch.device("cuda")) or (
-        isinstance(device, str) and "cuda" not in device
-    ):
+    if (
+        isinstance(device, torch.device) and device.type != torch.device("cuda").type
+    ) or (isinstance(device, str) and "cuda" not in device):
         raise ValueError("`device` must be on CUDA.")
 
     try:
