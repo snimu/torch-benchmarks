@@ -58,8 +58,6 @@ def benchmark(
     if verbose:
         print("Sanity checks passed. \n")
 
-    input_data = input_data.to(device)
-
     memory_bytes_forward = 0.0
     memory_bytes_forward_backward = 0.0
     compute_time_forward = 0.0
@@ -184,13 +182,13 @@ def sanity_checks(
         raise RuntimeError(f"`model.to(dtype={dtype})` failed.") from e
 
     try:
-        input_data.to(dtype)
+        input_data = nested_to(input_data, dtype)
     except Exception as e:
         raise RuntimeError(f"`input_data.to(dtype={dtype})` failed.") from e
 
     # input_data
     try:
-        input_data = input_data.to(device)
+        input_data = nested_to(input_data, dtype)
         output = model(input_data)
     except Exception as e:
         raise RuntimeError("Model incompatible with input_data.") from e
@@ -218,6 +216,30 @@ def sanity_checks(
 
     # Cleanup
     del model, output, loss_
+
+
+def nested_to(inputs: Any, target: torch.dtype | torch.device) -> Any:
+    """Moves all members of `inputs` to `target`."""
+
+    if hasattr(inputs, "to") and callable(inputs.to):
+        return inputs.to(target)
+    if hasattr(inputs, "tensors"):
+        nested_to(inputs.tensors, target)
+    if not hasattr(inputs, "__getitem__") or not inputs:
+        return inputs
+
+    if isinstance(inputs, dict):
+        for key, val in inputs:
+            inputs[key] = nested_to(val, target)
+    if isinstance(inputs, list):
+        for i, val in enumerate(inputs):
+            inputs[i] = nested_to(val, target)
+    if isinstance(inputs, tuple):
+        inputs = list(inputs)
+        for i, val in enumerate(inputs):
+            inputs[i] = nested_to(val, target)
+        inputs = tuple(inputs)
+    return inputs
 
 
 @torch.no_grad()
