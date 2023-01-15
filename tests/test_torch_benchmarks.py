@@ -18,6 +18,6 @@ class TestTorchBenchmarks:
     @staticmethod
     def test_doesnt_measure_cuda_itself() -> None:
         result = benchmark(
-            SimpleModel, input_data=torch.ones(2), loss=torch.nn.BCELoss()
+            SimpleModel, input_data=torch.ones(2), loss=torch.nn.CrossEntropyLoss()
         )
         assert result.memory_bytes_forward_backward < 1e6
