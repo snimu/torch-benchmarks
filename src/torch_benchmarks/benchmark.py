@@ -45,16 +45,23 @@ def benchmark(
 
     if verbose:
         print("\nStarted benchmark.\nPerforming sanity checks...")
-    sanity_checks(
-        model_type,
-        input_data,
-        loss,
-        model_args,
-        model_kwargs,
-        device,
-        dtype,
-        num_samples,
-    )
+
+    sanity_check_cuda()
+    sanity_check_device(device)
+    sanity_check_num_samples(num_samples)
+    sanity_check_model_args(model_args)
+    sanity_check_model_kwargs(model_kwargs)
+    model = sanity_check_model_type(model_type, model_args, model_kwargs)
+    model.to(device)
+    loss.to(device)
+    input_data = nested_to(input_data, device)
+    model, input_data = sanity_check_and_move_to_dtype(dtype, model, input_data)
+    output = sanity_check_model_compatability_with_input_data(model, input_data)
+    sanity_check_loss(loss, output)
+
+    # Cleanup
+    del model, output
+
     if verbose:
         print("Sanity checks passed. \n")
 
@@ -105,21 +112,12 @@ def benchmark(
     return model_statistics
 
 
-def sanity_checks(
-    model_type: Any,
-    input_data: Any,
-    loss: torch.nn.Module,
-    model_args: list[Any] | tuple[Any] | None,
-    model_kwargs: dict[str, Any] | None,
-    device: torch.device | str | int,
-    dtype: torch.dtype,
-    num_samples: int,
-) -> None:
-    # cuda
+def sanity_check_cuda() -> None:
     if not torch.cuda.is_available():
         raise OSError("`benchmark` only works on CUDA.")
 
-    # device
+
+def sanity_check_device(device: torch.device | str | int) -> None:
     if not isinstance(device, (torch.device, str, int)):
         raise TypeError(
             f"Parameter `device` must be of type `torch.device`, "
@@ -131,10 +129,13 @@ def sanity_checks(
     ):
         raise ValueError("`device` must be on CUDA.")
 
-    #   raises AssertionError if device not present
-    _ = torch.cuda.get_device_properties(device)
+    try:
+        _ = torch.cuda.get_device_properties(device)
+    except AssertionError as e:
+        raise ValueError(f"Invalid `device`: {device}") from e
 
-    # num_samples
+
+def sanity_check_num_samples(num_samples: int) -> None:
     if num_samples is None:
         raise TypeError("Parameter `num_samples` must be an `int`, not `None`.")
 
@@ -146,14 +147,16 @@ def sanity_checks(
     if num_samples < 1:
         raise ValueError("Parameter `num_samples` must be greater than 1.")
 
-    # model_args
+
+def sanity_check_model_args(model_args: list[Any] | tuple[Any]) -> None:
     if model_args is not None and not isinstance(model_args, (list, tuple)):
         raise TypeError(
             f"Parameter `model_args` must be a `list`, "
             f"a `tuple`, or `None`, not {type(model_args)}."
         )
 
-    # model_kwargs
+
+def sanity_check_model_kwargs(model_kwargs: dict[str, Any]) -> None:
     if (
         model_kwargs is not None
         and not isinstance(model_kwargs, dict)
@@ -164,13 +167,19 @@ def sanity_checks(
             f"or `None`, not {type(model_kwargs)}."
         )
 
-    # model_type
+
+def sanity_check_model_type(
+    model_type: Any, model_args: list[Any] | tuple[Any], model_kwargs: dict[str, Any]
+) -> Any:
     try:
-        model = model_type(*model_args, **model_kwargs).to(device)
+        return model_type(*model_args, **model_kwargs)
     except Exception as e:
         raise RuntimeError("Model-construction failed.") from e
 
-    # dtype
+
+def sanity_check_and_move_to_dtype(
+    dtype: torch.dtype, model: torch.nn.Module, input_data: Any
+) -> tuple[torch.nn.Module, Any]:
     if not isinstance(dtype, torch.dtype):
         raise TypeError(
             f"Parameter `dtype` must be of type `torch.dtype`, not {type(dtype)}"
@@ -186,39 +195,38 @@ def sanity_checks(
     except Exception as e:
         raise RuntimeError(f"`input_data.to(dtype={dtype})` failed.") from e
 
-    # input_data
+    return model, input_data
+
+
+def sanity_check_model_compatability_with_input_data(
+    model: torch.nn.Module, input_data: Any
+) -> Any:
     try:
-        input_data = nested_to(input_data, dtype)
-        output = model(input_data)
+        return model(input_data)
     except Exception as e:
         raise RuntimeError("Model incompatible with input_data.") from e
 
-    # loss
-    if loss is not None:
-        if not isinstance(loss, torch.nn.Module):
-            raise TypeError(
-                f"Parameter `loss` must be of type `torch.nn.Module`, "
-                f"not {type(loss)}"
-            )
 
-        try:
-            loss.to(device)
-            loss_ = loss(output, output)
-        except Exception as e:
-            raise RuntimeError("`loss` incompatible with model-output.") from e
+def sanity_check_loss(loss: torch.nn.Module, output: Any) -> None:
+    if not isinstance(loss, torch.nn.Module):
+        raise TypeError(
+            f"Parameter `loss` must be of type `torch.nn.Module`, " f"not {type(loss)}"
+        )
 
-        try:
-            loss_.backward()
-        except Exception as e:
-            raise RuntimeError(
-                "model cannot update parameters with output of `loss`."
-            ) from e
+    try:
+        loss_ = loss(output, output)
+    except Exception as e:
+        raise RuntimeError("`loss` incompatible with model-output.") from e
 
-    # Cleanup
-    del model, output, loss_
+    try:
+        loss_.backward()
+    except Exception as e:
+        raise RuntimeError(
+            "model cannot update parameters with output of `loss`."
+        ) from e
 
 
-def nested_to(inputs: Any, target: torch.dtype | torch.device) -> Any:
+def nested_to(inputs: Any, target: torch.dtype | torch.device | str | int) -> Any:
     """Moves all members of `inputs` to `target`."""
 
     if hasattr(inputs, "to") and callable(inputs.to):
