@@ -61,8 +61,8 @@ class ModelStatistics:
         lines = self.fill_lines(lines)
 
         lines[0] += f"{self.device_name} \n"
-        lines[1] += f"{self.to_mb(self.memory_bytes_forward)} MB \n"
-        lines[2] += f"{self.to_mb(self.memory_bytes_forward_backward)} MB \n"
+        lines[1] += f"{self.to_mb(self.memory_bytes_forward):.3f} MB \n"
+        lines[2] += f"{self.to_mb(self.memory_bytes_forward_backward):.3f} MB \n"
         lines[3] += f"{self.compute_time_forward:.3f} sec\n"
         lines[4] += f"{self.compute_time_forward_backward:.3f} sec\n"
 
@@ -77,8 +77,8 @@ class ModelStatistics:
         return divider + "ModelStatistics \n" + divider + "".join(lines) + divider
 
     @staticmethod
-    def to_mb(memory_bytes: float) -> int:
-        return int(memory_bytes / 1e6)
+    def to_mb(memory_bytes: float) -> float:
+        return memory_bytes / 1e6
 
     @staticmethod
     def fill_lines(lines: list[str]) -> list[str]:
