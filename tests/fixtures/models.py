@@ -8,7 +8,7 @@ class SimpleModel(torch.nn.Module):
 
     def __init__(self) -> None:
         super().__init__()
-        self.model = torch.nn.Linear(10, 10)
+        self.model = torch.nn.Linear(2, 2)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x_ = self.model(x)
