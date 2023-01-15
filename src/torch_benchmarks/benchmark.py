@@ -149,7 +149,7 @@ def sanity_check_num_samples(num_samples: int) -> None:
 
 
 def sanity_check_model_args(model_args: list[Any] | tuple[Any]) -> None:
-    if model_args is not None and not isinstance(model_args, (list, tuple)):
+    if not isinstance(model_args, (list, tuple)):
         raise TypeError(
             f"Parameter `model_args` must be a `list`, "
             f"a `tuple`, or `None`, not {type(model_args)}."
