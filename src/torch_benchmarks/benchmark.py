@@ -34,6 +34,7 @@ def benchmark(
                         Example: `weights=torchvision.models.ResNet50_Weights`.
     :param device: The device you want your model to run on. Must be CUDA.
     :param dtype: The datatype of the inputs. Inputs and models will be cast to it.
+                    Please use and explicit `torch.dtype`, not `int` or `float`.
     :param loss: The loss-function. Optional.
     :param num_samples: The number of times the model should be measured.
     :param verbose: If `True`, prints progress info and the output of `benchmark`.
