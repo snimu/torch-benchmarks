@@ -9,7 +9,7 @@ from torch_benchmarks import benchmark
 @pytest.mark.skipif(
     torch.cuda.is_available(), reason="Tests only meaningful without CUDA."
 )
-def test_cuda() -> None:
+def test_sanity_check_cuda() -> None:
     with pytest.raises(EnvironmentError):
         _ = benchmark(SimpleModel, torch.ones(2), loss=torch.nn.CrossEntropyLoss())
 
