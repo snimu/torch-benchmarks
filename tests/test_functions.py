@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods
+import pytest
 import torch
 
 from tests.fixtures.inputs import InputsNestedTo
@@ -17,3 +17,12 @@ class TestNestedTo:
         self.inputs.nested_tensor = nested_to(self.inputs.nested_tensor, torch.int8)
         for tensor in self.inputs.retrieve_tensors_from_nested_tensor():
             assert tensor.dtype == torch.int8
+
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="Tests moving to CUDA.")
+    def test_nested_to_device(self) -> None:
+        tensor = nested_to(self.inputs.tensor, "cuda")
+        assert tensor.is_cuda()
+
+        self.inputs.nested_tensor = nested_to(self.inputs.nested_tensor, "cuda")
+        for tensor in self.inputs.retrieve_tensors_from_nested_tensor():
+            assert tensor.is_cuda()
