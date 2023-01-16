@@ -157,10 +157,8 @@ def sanity_check_model_args(model_args: list[Any] | tuple[Any]) -> None:
 
 
 def sanity_check_model_kwargs(model_kwargs: dict[str, Any]) -> None:
-    if (
-        model_kwargs is not None
-        and not isinstance(model_kwargs, dict)
-        and not all(isinstance(key, str) for key in model_kwargs.keys())
+    if not isinstance(model_kwargs, dict) or not all(
+        isinstance(key, str) for key in model_kwargs.keys()
     ):
         raise TypeError(
             f"Parameter `model_kwargs` must be a `dict[str, Any]` "
