@@ -21,8 +21,8 @@ class TestNestedTo:
     @pytest.mark.skipif(not torch.cuda.is_available(), reason="Tests moving to CUDA.")
     def test_nested_to_device(self) -> None:
         tensor = nested_to(self.inputs.tensor, "cuda")
-        assert tensor.is_cuda()
+        assert tensor.is_cuda
 
         self.inputs.nested_tensor = nested_to(self.inputs.nested_tensor, "cuda")
         for tensor in self.inputs.retrieve_tensors_from_nested_tensor():
-            assert tensor.is_cuda()
+            assert tensor.is_cuda
