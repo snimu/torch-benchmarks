@@ -57,7 +57,7 @@ def benchmark(
     loss.to(device)
     input_data = nested_to(input_data, device)
     model, input_data = sanity_check_and_move_to_dtype(dtype, model, input_data)
-    output = sanity_check_model_compatability_with_input_data(model, input_data)
+    output = sanity_check_model_compatibility_with_input_data(model, input_data)
     sanity_check_loss(loss, output)
 
     # Cleanup
@@ -197,7 +197,7 @@ def sanity_check_and_move_to_dtype(
     return model, input_data
 
 
-def sanity_check_model_compatability_with_input_data(
+def sanity_check_model_compatibility_with_input_data(
     model: torch.nn.Module, input_data: Any
 ) -> Any:
     try:

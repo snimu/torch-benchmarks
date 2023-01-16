@@ -155,7 +155,7 @@ class TestSanityChecks:
 
         # TODO: find a way to test input_data sanity-checks
 
-    def test_sanity_check_model_compatability_with_input_data(self) -> None:
+    def test_sanity_check_model_compatibility_with_input_data(self) -> None:
         with pytest.raises(RuntimeError):
             benchmark(
                 self.resnet18,
