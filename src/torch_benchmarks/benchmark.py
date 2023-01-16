@@ -229,7 +229,10 @@ def nested_to(inputs: Any, target: torch.dtype | torch.device | str | int) -> An
     """Moves all members of `inputs` to `target`."""
 
     if hasattr(inputs, "to") and callable(inputs.to):
-        return inputs.to(target)
+        if isinstance(target, torch.dtype):
+            return inputs.to(target)
+        inputs.to(target)  # device
+        return inputs
     if hasattr(inputs, "tensors"):
         nested_to(inputs.tensors, target)
     if not hasattr(inputs, "__getitem__") or not inputs:
