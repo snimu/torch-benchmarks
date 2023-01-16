@@ -129,3 +129,7 @@ class TestSanityChecks:
                 self.loss,
                 model_kwargs=1,  # type: ignore[arg-type]
             )
+
+    def test_sanity_check_model_type(self) -> None:
+        with pytest.raises(RuntimeError):
+            benchmark("not a model", self.input_data, self.loss)
