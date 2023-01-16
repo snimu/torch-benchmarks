@@ -133,3 +133,24 @@ class TestSanityChecks:
     def test_sanity_check_model_type(self) -> None:
         with pytest.raises(RuntimeError):
             benchmark("not a model", self.input_data, self.loss)
+
+    def test_sanity_check_and_move_to_dtype(self) -> None:
+        with pytest.raises(TypeError):
+            benchmark(
+                self.resnet18,
+                self.input_data,
+                self.loss,
+                model_kwargs=self.model_kwargs18,
+                dtype=int,  # type: ignore[arg-type]
+            )
+
+        with pytest.raises(RuntimeError):
+            benchmark(
+                self.resnet18,
+                self.input_data,
+                self.loss,
+                model_kwargs=self.model_kwargs18,
+                dtype=torch.int8,
+            )
+
+        # TODO: find a way to test input_data sanity-checks
