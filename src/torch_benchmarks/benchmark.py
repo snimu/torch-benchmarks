@@ -236,7 +236,7 @@ def nested_to(inputs: Any, target: torch.dtype | torch.device | str | int) -> An
         return inputs
 
     if isinstance(inputs, dict):
-        for key, val in inputs:
+        for key, val in inputs.items():
             inputs[key] = nested_to(val, target)
     if isinstance(inputs, list):
         for i, val in enumerate(inputs):
