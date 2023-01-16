@@ -154,3 +154,12 @@ class TestSanityChecks:
             )
 
         # TODO: find a way to test input_data sanity-checks
+
+    def test_sanity_check_model_compatability_with_input_data(self) -> None:
+        with pytest.raises(RuntimeError):
+            benchmark(
+                self.resnet18,
+                "not a valid input to resnet18",
+                self.loss,
+                model_kwargs=self.model_kwargs18,
+            )
