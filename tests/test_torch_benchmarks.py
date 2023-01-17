@@ -25,7 +25,7 @@ class TestTorchBenchmarks:
     def test_combined_size_is_full_size_forward_only() -> None:
         device = torch.device("cuda:0")
         model_type = torch.nn.Linear
-        model_args = (10,)
+        model_args = (10, 10)
         loss = torch.nn.BCELoss()
 
         # measure full size
@@ -33,7 +33,7 @@ class TestTorchBenchmarks:
 
         with torch.no_grad():
             input_data = torch.ones(10).to(device)
-            model = model_type(*model_args)  # type: ignore[call-arg]
+            model = model_type(*model_args)
             model(input_data)
 
         bytes_full_measurement = torch.cuda.max_memory_allocated(device) - bytes_before
