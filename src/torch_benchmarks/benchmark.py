@@ -260,6 +260,7 @@ def check_forward(
     device: torch.device | str | int,
     dtype: torch.dtype,
 ) -> tuple[float, float]:
+    torch.cuda.reset_peak_memory_stats(device)
     memory_usage_before = torch.cuda.max_memory_allocated(device)
     model = model_type(*model_args, **model_kwargs).to(device, dtype=dtype)
     model.eval()
@@ -271,7 +272,6 @@ def check_forward(
     memory_bytes = torch.cuda.max_memory_allocated(device) - memory_usage_before
 
     del model
-    torch.cuda.reset_peak_memory_stats(device)
 
     return memory_bytes, compute_time
 
@@ -285,6 +285,7 @@ def check_forward_backward(
     device: torch.device | str | int,
     dtype: torch.dtype,
 ) -> tuple[float, float]:
+    torch.cuda.reset_peak_memory_stats(device)
     memory_usage_before = torch.cuda.max_memory_allocated(device)
     model = model_type(*model_args, **model_kwargs).to(device, dtype=dtype)
     model.train()
@@ -298,6 +299,5 @@ def check_forward_backward(
     memory_bytes = torch.cuda.max_memory_allocated(device) - memory_usage_before
 
     del model, output, loss_
-    torch.cuda.reset_peak_memory_stats(device)
 
     return memory_bytes, compute_time
