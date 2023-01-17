@@ -22,7 +22,7 @@ class TestTorchBenchmarks:
         assert result.memory_bytes_forward_backward < 1e6
 
     @staticmethod
-    def test_tensor_size_plus_model_size_is_full_size_forward_only() -> None:
+    def test_combined_size_is_full_size_forward_only() -> None:
         device = torch.device("cuda:0")
         model_type = torch.nn.Linear
         model_args = (10,)
