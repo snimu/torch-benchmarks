@@ -12,4 +12,4 @@ class SimpleModel(torch.nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x_ = self.model(x)
-        return F.softmax(x_, dim=2)
+        return F.softmax(x_, dim=0)
