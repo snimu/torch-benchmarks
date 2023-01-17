@@ -19,7 +19,7 @@ def benchmark(
     model_kwargs: dict[str, Any] | None = None,
     device: torch.device | str | int = "cuda",
     dtype: torch.dtype = torch.float32,
-    num_samples: int = 10,
+    num_samples: int = 1,
     verbose: bool = False,
 ) -> ModelStatistics:
     """
