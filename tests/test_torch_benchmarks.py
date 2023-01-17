@@ -33,7 +33,7 @@ class TestTorchBenchmarks:
 
         with torch.no_grad():
             input_data = torch.ones(10).to(device)
-            model = model_type(*model_args)
+            model = model_type(*model_args).to(device)
             model(input_data)
 
         bytes_full_measurement = torch.cuda.max_memory_allocated(device) - bytes_before
