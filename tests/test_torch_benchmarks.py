@@ -26,7 +26,7 @@ class TestTorchBenchmarks:
         device = torch.device("cuda:0")
         model_type = torch.nn.Linear
         model_args = (10, 10)
-        loss = torch.nn.BCELoss()
+        loss = torch.nn.CrossEntropyLoss()
 
         # measure full size
         bytes_before = torch.cuda.max_memory_allocated(device)
