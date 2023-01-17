@@ -29,6 +29,7 @@ class TestTorchBenchmarks:
         loss = torch.nn.CrossEntropyLoss()
 
         # measure full size
+        torch.cuda.reset_peak_memory_stats(device)
         bytes_before = torch.cuda.max_memory_allocated(device)
 
         with torch.no_grad():
@@ -37,13 +38,14 @@ class TestTorchBenchmarks:
             model(input_data)
 
         bytes_full_measurement = torch.cuda.max_memory_allocated(device) - bytes_before
-        del model, input_data
+        del model, input_data  # Cleanup
 
         # measure full size from two independent components for comparison
         model_statistics = benchmark(
             model_type, torch.ones(10), loss, model_args=model_args
         )
 
+        torch.cuda.reset_peak_memory_stats(device)
         bytes_before = torch.cuda.max_memory_allocated(device)
         input_data = torch.ones(10).to(device)
         bytes_input_data = torch.cuda.max_memory_allocated(device) - bytes_before
