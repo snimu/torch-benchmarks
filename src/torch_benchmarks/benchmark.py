@@ -15,7 +15,7 @@ def benchmark(
     input_data: Any,
     loss: torch.nn.Module,
     *,
-    model_args: list[Any] | tuple[Any] | None = None,
+    model_args: list[Any] | tuple[Any, ...] | None = None,
     model_kwargs: dict[str, Any] | None = None,
     device: torch.device | str | int = "cuda",
     dtype: torch.dtype = torch.float32,
@@ -149,7 +149,7 @@ def sanity_check_num_samples(num_samples: int) -> None:
         raise ValueError("Parameter `num_samples` must be greater than 1.")
 
 
-def sanity_check_model_args(model_args: list[Any] | tuple[Any]) -> None:
+def sanity_check_model_args(model_args: list[Any] | tuple[Any, ...]) -> None:
     if not isinstance(model_args, (list, tuple)):
         raise TypeError(
             f"Parameter `model_args` must be a `list`, "
@@ -168,7 +168,9 @@ def sanity_check_model_kwargs(model_kwargs: dict[str, Any]) -> None:
 
 
 def sanity_check_model_type(
-    model_type: Any, model_args: list[Any] | tuple[Any], model_kwargs: dict[str, Any]
+    model_type: Any,
+    model_args: list[Any] | tuple[Any, ...],
+    model_kwargs: dict[str, Any],
 ) -> Any:
     try:
         return model_type(*model_args, **model_kwargs)
@@ -253,7 +255,7 @@ def nested_to(inputs: Any, target: torch.dtype | torch.device | str | int) -> An
 def check_forward(
     model_type: Any,
     input_data: Any,
-    model_args: list[Any] | tuple[Any],
+    model_args: list[Any] | tuple[Any, ...],
     model_kwargs: dict[str, Any],
     device: torch.device | str | int,
     dtype: torch.dtype,
@@ -278,7 +280,7 @@ def check_forward_backward(
     model_type: Any,
     input_data: Any,
     loss: torch.nn.Module,
-    model_args: list[Any] | tuple[Any],
+    model_args: list[Any] | tuple[Any, ...],
     model_kwargs: dict[str, Any],
     device: torch.device | str | int,
     dtype: torch.dtype,
