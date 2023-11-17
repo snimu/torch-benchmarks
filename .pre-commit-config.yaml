@@ -2,13 +2,13 @@ ci:
   skip: [mypy, pytest]
 repos:
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.13.0
+    rev: v3.15.0
     hooks:
     - id: pyupgrade
       args: [--py38-plus]
 
   - repo: https://github.com/hadialqattan/pycln
-    rev: v2.2.2
+    rev: v2.3.0
     hooks:
       - id: pycln
         args: [--all]
@@ -19,7 +19,7 @@ repos:
       - id: isort
 
   - repo: https://github.com/psf/black
-    rev: 23.9.1
+    rev: 23.11.0
     hooks:
       - id: black
         args: [-C]
@@ -36,7 +36,7 @@ repos:
           ]
 
   - repo: https://github.com/PyCQA/pylint
-    rev: v3.0.0a7
+    rev: v3.0.1
     hooks:
       - id: pylint
         args: ["--disable=import-error"]
